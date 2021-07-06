@@ -9,18 +9,34 @@ def user_ratings_to_df(filename):
     # col_names = ['name', 'year', 'rating']
     # ratings_df = pd.DataFrame(col_names)
     ratings_df = pd.read_csv(lbxd_ratings)
+    ratings_df.drop(['Date', 'Letterboxd URI'], axis=1, inplace=True)
     return ratings_df
     
 # get the user's letterboxd ratings from their ratings.csv file
-lbxd_ratings = "ratings.csv" # might want to use input function here
+lbxd_ratings = "smaller.csv" # might want to use input function here
 ratings_df = user_ratings_to_df(lbxd_ratings)
+#print(ratings_df.head())
 
-result = RottenTomatoesClient.search(term="Straight Up", limit=1)
-print(result) # does not work for specific movies?
+# result = RottenTomatoesClient.search(term="Straight Up", limit=10)
+# print(result) # does not work for specific movies?
+
 # match year and name string exactly
 # what if there is no score?
 
-#for movie in ratings_df['Name']:
-#    result = RottenTomatoesClient.search(term=movie, limit=1)
-#    print("tomatometer: %-10d" % (result['movies'][0]['meterScore']))
+# results = RottenTomatoesClient.search(term='Hereditary', limit=5) 
+# print(results)
+
+for name, year, rating in ratings_df.itertuples(index=False):
+    results = RottenTomatoesClient.search(term=name, limit=5)        
+    for result in results['movies']:
+        search_name = result['name']
+        search_year = result['year']
+        if search_year == year and search_name == name:
+            if 'meterScore' in result.keys():
+                print("user score: %-50s --- tomatometer: %-10d" % (result['name'] , result['meterScore']))
+            else:
+                print("user score: %-50s --- tomatometer: no score" % (result['name']))
+            break
+        
+#  print("tomatometer: %-10d" % (result['movies'][0]['meterScore']))
     # print("user score: %-10s --- tomatometer: %-10s" % (result['movies'][0]['name'] , result['movies'][0]['meterScore']))
