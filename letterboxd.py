@@ -19,7 +19,7 @@ def user_input():
         letterboxd.
         Upload the file within the zip file titled 'ratings.csv'.
         Thank you.
-        Enter a user name below so we can add you to our \"Movie Taste Database\": 
+        Enter your letterboxd username below so we can add you to our \"Movie Taste Database\": 
         ''')
     return user_name
 
@@ -81,14 +81,23 @@ def user_data_to_database(database_name, user_name, ratings_df):
     load_database(database_name)
     engine = create_engine('mysql://root:codio@localhost/' + database_name) # add avg field
     ratings_df.to_sql(user_name, con=engine, if_exists='replace', index=False)
+    avg = ratings_df['Difference'].mean()
     # think abt updating a master table with columns: user_name, avg difference
+    print("here is the problem")
+    sql = "INSERT INTO letterboxd.all_users (username, average_difference) VALUES (\"" + user_name + "\", " + str(avg) + ");"
+    with engine.begin() as conn:
+        conn.execute(sql)
     # ratings_df.to_sql("all_users", con=engine, if_exists='replace', index=False)
-    # os.system('mysql -u root -pcodio -e "INSERT INTO letterboxd.all_users(user_name, average_difference) 
-    # VALUES (\" + user_name + \", "+ avg + "")' + database_name + '; "')
     # INSERT INTO catalog (name,manufacture_year,brand)
     # VALUES ("Brian May’s Red Special", 1963, DEFAULT);
+    print("can't get here")
     save_database(database_name)
 
+
+def user_output(ratings_df):
+    #ratings_df = ratings_df.sort_values(['Difference'], axis=1, ascending=False)
+    #print(ratings_df.head()) 
+    pass
 
 # issues: data takes time, maybe load in five at a time?
 # issues/future: How to incorprate the use of databases in this
