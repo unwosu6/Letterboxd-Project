@@ -28,6 +28,12 @@ def user_ratings_to_df(filename):
     try:
         ratings_df = pd.read_csv(filename)
         ratings_df.drop(['Date', 'Letterboxd URI'], axis=1, inplace=True)
+        ratings_df.loc[ratings_df['Name'] == ratings_df.iloc[0]['Name'], 'Meter_Score'] = None
+        ratings_df.loc[ratings_df['Name'] == ratings_df.iloc[0]['Name'], 'Difference'] = None
+        ratings_df.loc[ratings_df['Name'] == ratings_df.iloc[0]['Name'], 'Actual_Difference'] = None        
+        #ratings_df = ratings_df.assign(Meter_Score='', Difference='', Actual_Difference='')
+        #df.assign(ColName='') 
+        #df = df.assign(Empty_Col1='', Empty_Col2='')
     except:
         print("The ratings.csv file was not provided. Goodbye.")
         exit()
@@ -35,11 +41,10 @@ def user_ratings_to_df(filename):
 
 
 def user_and_critic_df(ratings_df):
-#     length = len(ratings_df.index)
-#     for i in range(length/5):
-#         search_next_five(ratings_df)
     numtry = 0
-    for name, year, rating in ratings_df.itertuples(index=False):
+    for name, year, rating, meterScore, diff, acDiff in ratings_df.itertuples(index=False):
+        if numtry % 10 == 0:
+            print("loading movies...")
         numtry += 1
         results = RottenTomatoesClient.search(term=name, limit=5)
         for result in results['movies']:
@@ -50,19 +55,27 @@ def user_and_critic_df(ratings_df):
                 or search_year == year - 1) and search_name == name:
                 if 'meterScore' in result.keys():
                     tomato = result['meterScore'] / 20.0
-                    diff = abs(tomato - rating)
+                    diff = rating - tomato
                     ratings_df.loc[
                         ratings_df['Name'] == result['name'], 'Meter_Score'] = tomato
                     ratings_df.loc[
-                        ratings_df['Name'] == result['name'], 'Difference'] = diff
+                        ratings_df['Name'] == result['name'], 'Difference'] = abs(diff)
+                    ratings_df.loc[  
+                        ratings_df['Name'] == result['name'], 'Actual_Difference'] = diff
                 else:
                     ratings_df.loc[ratings_df['Name'] == result['name'], 'Meter_Score'] = None
                     ratings_df.loc[ratings_df['Name'] == result['name'], 'Difference'] = None
+                    ratings_df.loc[ratings_df['Name'] == result['name'], 'Actual_Difference'] = None
                 break
-        if numtry % 10 == 0:
-            print("temp")
-            # sleep(1)
 
+    print('done loading movies!')
+    print(ratings_df)
+    ratings_df = ratings_df.astype({"Name":'string',
+                    "Year":'float',
+                    "Rating":'float',
+                    "Meter_Score":'float',
+                    "Difference":'float',
+                    "Actual_Difference":'float'})
 
 def plot_movie_ratings(ratings_df):
     fig = px.scatter(ratings_df, x='Rating', y='Meter_Score', hover_name='Name', color='Difference')
@@ -83,21 +96,62 @@ def user_data_to_database(database_name, user_name, ratings_df):
     ratings_df.to_sql(user_name, con=engine, if_exists='replace', index=False)
     avg = ratings_df['Difference'].mean()
     # think abt updating a master table with columns: user_name, avg difference
-    print("here is the problem")
+    # keeps adding same user on multiple runsexi
     sql = "INSERT INTO letterboxd.all_users (username, average_difference) VALUES (\"" + user_name + "\", " + str(avg) + ");"
     with engine.begin() as conn:
         conn.execute(sql)
     # ratings_df.to_sql("all_users", con=engine, if_exists='replace', index=False)
     # INSERT INTO catalog (name,manufacture_year,brand)
     # VALUES ("Brian May’s Red Special", 1963, DEFAULT);
-    print("can't get here")
     save_database(database_name)
 
+    
+def organize_ratings_df(ratings_df):
+    # sort movies by difference in score
+    ratings_df = ratings_df.sort_values(['Difference'], ascending=False)
+    # average difference
+    avg = ratings_df['Difference'].mean()
+    # most differently rated movie
+    movie_name = ratings_df.iloc[0]['Name']
+    diff = ratings_df.iloc[0]['Actual_Difference']
+    return ratings_df, avg, movie_name, diff
 
+def get_controversial_scores(ratings_df):
+    num_movies = ratings_df.index.size
+    # find more specific data on likes and dislikes
+    for i in range(1, num_movies):
+        if ratings_df.iloc[i]['Actual_Difference'] > 0:
+            loved_movie = ratings_df.iloc[i]['Name']
+            break
+    for i in range(1, num_movies):
+        if ratings_df.iloc[i]['Actual_Difference'] < 0:
+            hated_movie = ratings_df.iloc[i]['Name']
+            break
+    for i in reversed(range(1, num_movies)):
+        if ratings_df.iloc[i]['Actual_Difference'] == 0:
+            neutral_movie = ratings_df.iloc[i]['Name']
+            break
+        else:
+            neutral_movie = None
+    return hated_movie, loved_movie, neutral_movie
+        
 def user_output(ratings_df):
-    #ratings_df = ratings_df.sort_values(['Difference'], axis=1, ascending=False)
-    #print(ratings_df.head()) 
-    pass
+    ratings_df, avg, movie_name, diff = organize_ratings_df(ratings_df)
+    hated_movie, loved_movie, neutral_movie = get_controversial_scores(ratings_df)
+    print('Wow, you think you\'re better than everyone for not liking %s?!' % (hated_movie))
+    print('Whoa, seems like you liked %s a little too much...' % (loved_movie))
+    print('You can\'t even think for yourself! You rated %s the same as the critics.' % (neutral_movie))
+    
+    if diff < 0:
+        print('You had a %.2f difference with the critics on %s... You loved it but who\'s wrong here you (one person) or the critics (more than one person).' % (abs(diff), movie_name))
+    else:
+        print('You had a %.2f difference with the critics on %s... You hated it but who\'s wrong here you (one person) or the critics (more than one person).' % (abs(diff), movie_name))
+    
+    if avg < 1:
+        print('On average your rating was %.2f points different. You\'re an absolute sheep. No wonder people don\'t like you... r taste!' % (avg))
+    else:
+        print('On average your rating was %.2f points different. You\'re an absolute contrarian. No wonder people don\'t like you... r taste!' % (avg))
+
 
 # issues: data takes time, maybe load in five at a time?
 # issues/future: How to incorprate the use of databases in this
@@ -130,3 +184,5 @@ def user_output(ratings_df):
 #                 print("movie name: %-50s user score: %1d --- tomatometer: no score"
 #                       % (result['name'], rating))   
 #             break
+
+        
