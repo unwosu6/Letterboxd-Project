@@ -76,13 +76,13 @@ def user_and_critic_df(ratings_df):
     return ratings_df
     
 def plot_movie_ratings(username, ratings_df):
-    fig = px.scatter(ratings_df, x='Rating', y='Meter_Score', hover_name='Name', color='Difference', 
+    fig = px.scatter(ratings_df, x='Meter_Score', y='Rating', hover_name='Name', color='Difference', 
                     labels={
                         'Rating': 'Your Rating',
                         'Meter_Score': 'Critic Rating',
                         'Difference': 'Difference in Ratings'
                      },
-                    title = "Your Rating vs Critics Ratings")
+                    title = "Your Ratings vs Critics")
     filename = username + '-ratings.html'
     file = fig.write_html(filename)
 

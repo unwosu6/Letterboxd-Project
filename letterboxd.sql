@@ -48,7 +48,7 @@ DROP TABLE IF EXISTS `bestwum`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `bestwum` (
   `Name` text DEFAULT NULL,
-  `Year` bigint(20) DEFAULT NULL,
+  `Year` double DEFAULT NULL,
   `Rating` double DEFAULT NULL,
   `Meter_Score` double DEFAULT NULL,
   `Difference` double DEFAULT NULL,
@@ -129,4 +129,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2021-07-09 18:22:23
+-- Dump completed on 2021-07-09 22:01:29
