@@ -23,8 +23,9 @@ DROP TABLE IF EXISTS `all_users`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `all_users` (
-  `username` varchar(255) DEFAULT NULL,
-  `average_difference` float(3,2) DEFAULT NULL
+  `username` varchar(255) NOT NULL,
+  `average_difference` float(3,2) DEFAULT NULL,
+  PRIMARY KEY (`username`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -34,8 +35,62 @@ CREATE TABLE `all_users` (
 
 LOCK TABLES `all_users` WRITE;
 /*!40000 ALTER TABLE `all_users` DISABLE KEYS */;
-INSERT INTO `all_users` VALUES ('unwosu',0.65),('unwosu',0.65),('unwosu',0.65),('unwosu',0.65),('unwosu',0.65),('unwosu',0.65),('unwosu',0.65),('unwosu',0.65),('unwosu',0.65),('unwosu',0.65),('unwosu',0.65),('unwosu',0.65);
+INSERT INTO `all_users` VALUES ('bestwum',0.60),('eman2',NULL),('unwosu',0.65);
 /*!40000 ALTER TABLE `all_users` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `bestwum`
+--
+
+DROP TABLE IF EXISTS `bestwum`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `bestwum` (
+  `Name` text DEFAULT NULL,
+  `Year` bigint(20) DEFAULT NULL,
+  `Rating` double DEFAULT NULL,
+  `Meter_Score` double DEFAULT NULL,
+  `Difference` double DEFAULT NULL,
+  `Actual_Difference` double DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `bestwum`
+--
+
+LOCK TABLES `bestwum` WRITE;
+/*!40000 ALTER TABLE `bestwum` DISABLE KEYS */;
+INSERT INTO `bestwum` VALUES ('Annihilation',2018,4,4.4,0.4,-0.4),('Parasite',2019,4.5,NULL,NULL,NULL),('The Cabin in the Woods',2011,3.5,4.6,1.1,-1.1),('Event Horizon',1997,1.5,1.45,0.05,0.05),('The Lighthouse',2019,4,3.55,0.45,0.45),('Her',2013,5,NULL,NULL,NULL),('Re-Animator',1985,3,4.65,1.65,-1.65),('Django Unchained',2012,4.5,4.35,0.15,0.15),('The Matrix',1999,4,4.4,0.4,-0.4),('The Descent',2005,4,4.3,0.3,-0.3),('Inception',2010,3.5,4.35,0.85,-0.85),('Uncut Gems',2019,4.5,4.55,0.0499999999999998,-0.0499999999999998),('The Death of Stalin',2017,4,4.75,0.75,-0.75),('Twin Peaks',1989,3,NULL,NULL,NULL),('Straight Up',2019,3.5,4.65,1.15,-1.15),('Good Time',2017,3.5,4.6,1.1,-1.1),('The Lord of the Rings: The Fellowship of the Ring',2001,5,4.55,0.45,0.45),('The Lord of the Rings: The Two Towers',2002,4.5,4.75,0.25,-0.25),('The Lord of the Rings: The Return of the King',2003,5,4.65,0.35,0.35),('Palm Springs',2020,4,4.75,0.75,-0.75),('A Silent Voice',2016,3,NULL,NULL,NULL),('Your Name.',2016,4,NULL,NULL,NULL);
+/*!40000 ALTER TABLE `bestwum` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `eman2`
+--
+
+DROP TABLE IF EXISTS `eman2`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `eman2` (
+  `Name` text DEFAULT NULL,
+  `Year` bigint(20) DEFAULT NULL,
+  `Rating` double DEFAULT NULL,
+  `Meter_Score` double DEFAULT NULL,
+  `Difference` double DEFAULT NULL,
+  `Actual_Difference` double DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `eman2`
+--
+
+LOCK TABLES `eman2` WRITE;
+/*!40000 ALTER TABLE `eman2` DISABLE KEYS */;
+INSERT INTO `eman2` VALUES ('In The Heights',2021,4.5,NULL,NULL,NULL);
+/*!40000 ALTER TABLE `eman2` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -74,4 +129,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2021-07-08 22:11:04
+-- Dump completed on 2021-07-09 17:26:01
