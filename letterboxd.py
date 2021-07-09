@@ -12,9 +12,9 @@ from time import sleep
 import os
 import numpy as np
 
+
 def user_input():
-    user_name = input(
-        ''' 
+    user_name = input( ''' 
         Hello welcome to the letterboxd judger!
         To give a list of movies, download your rated movies from
         letterboxd.
@@ -66,14 +66,14 @@ def user_and_critic_df(ratings_df):
                     ratings_df.loc[ratings_df['Name'] == result['name'], 'Difference'] = None
                     ratings_df.loc[ratings_df['Name'] == result['name'], 'Actual_Difference'] = None
                 break
-
     print('done loading movies!')
-    ratings_df = ratings_df.astype({"Name":'string',
-                    "Year":'float',
-                    "Rating":'float',
-                    "Meter_Score":'float',
-                    "Difference":'float',
-                    "Actual_Difference":'float'})
+    ratings_df = ratings_df.astype({"Name": 'string',
+                    "Year": 'float',
+                    "Rating": 'float',
+                    "Meter_Score": 'float',
+                    "Difference": 'float',
+                    "Actual_Difference": 'float'})
+    return ratings_df
     
 def plot_movie_ratings(username, ratings_df):
     fig = px.scatter(ratings_df, x='Rating', y='Meter_Score', hover_name='Name', color='Difference', 
@@ -94,7 +94,13 @@ def save_database(database_name):
 def load_database(database_name):
     os.system("mysql -u root -pcodio " + database_name + " < " + database_name + ".sql")
 
-    
+def returning_user(username, database_name):
+    load_database(database_name)
+    con = 'mysql://root:codio@localhost/' + database_name
+    ratings_df = pd.read_sql_table(username, con)
+    return ratings_df
+
+
 def user_data_to_database(database_name, user_name, ratings_df):
     load_database(database_name)
     engine = create_engine('mysql://root:codio@localhost/' + database_name) # add avg field

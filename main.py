@@ -17,16 +17,14 @@ lbxd_ratings = 'ratings1.csv'
 username = letterboxd.user_input()
 
 # check if the user is returning
-response = input('Are you a previous user? [Y/N]: ').lower()
+response = input('Are providing new data? [Y/N]: ').lower()
 filename = username + ".csv"
-if response == 'y': 
-    ratings_df = pd.read_csv(filename)
+if response == 'n': 
+    ratings_df = letterboxd.returning_user(username, database_name)
 else:
     # create dataframe containing user movie ratings and the RT score
     ratings_df = letterboxd.user_ratings_to_df(lbxd_ratings)
-    letterboxd.user_and_critic_df(ratings_df)
-    # store in file called username.csv -> unwosu.csv
-    ratings_df.to_csv(filename)
+    ratings_df = letterboxd.user_and_critic_df(ratings_df)
 
 # outputs users results
 letterboxd.user_output(ratings_df)
